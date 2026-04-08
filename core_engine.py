@@ -131,17 +131,21 @@ class EPBCore:
 
     def optimize_mckd_params(self, signal, progress_callback=None):
         # progress_callback 留作更新UI进度条使用
+        # 限制 T 的搜索范围以避免进入低频噪声的局部最优区
         T_min = int(self.fs / 400.0) 
         T_max = int(self.fs / 10.0)
-        bounds = {'L': (50, 150), 'M': (1, 5), 'T': (T_min, T_max)}
+        bounds = {'L': (50, 200), 'M': (1, 6), 'T': (T_min, T_max)}
         
-        curr = {'L': 100, 'M': 2, 'T': random.randint(*bounds['T'])}
-        res = self.fast_mckd(signal, curr['L'], curr['T'], curr['M'], max_iter=10)
+        # 为了提高初始寻优概率，给一个较合理的起始 T 参数猜测
+        curr = {'L': 100, 'M': 3, 'T': random.randint(*bounds['T'])}
+        res = self.fast_mckd(signal, curr['L'], curr['T'], curr['M'], max_iter=15)
         curr_fit = self.calculate_fitness(res)
         best, best_fit = curr.copy(), curr_fit
         
-        Temp, alpha = 100.0, 0.85 # 适度加快退火以保证图形界面用户体验
+        # 恢复缓慢的退火速率以保证找到真正的全局最优点
+        Temp, alpha = 100.0, 0.9 
         step, total_steps = 0, 0
+        
         # 预先计算总步数用于进度条
         temp_calc = Temp
         while temp_calc > 1.0:
@@ -163,7 +167,7 @@ class EPBCore:
                 for k in new_s: new_s[k] = int(new_s[k])
                 if new_s == curr: continue
                 
-                processed = self.fast_mckd(signal, new_s['L'], new_s['T'], new_s['M'], max_iter=10)
+                processed = self.fast_mckd(signal, new_s['L'], new_s['T'], new_s['M'], max_iter=15)
                 new_fit = self.calculate_fitness(processed)
                 
                 if new_fit - curr_fit > 0 or random.random() < np.exp((new_fit - curr_fit) / Temp):
