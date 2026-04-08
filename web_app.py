@@ -15,8 +15,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# 解决 plt 中文显示问题
-plt.rcParams['font.sans-serif'] = ['SimHei', 'Arial']
+# 解决 plt 中文显示问题 (优先尝试微软雅黑，其次 Arial)
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'DejaVu Sans', 'Arial']
 plt.rcParams['axes.unicode_minus'] = False
 
 # ==========================================
@@ -149,20 +149,20 @@ else:
 
     with col1:
         st.subheader("时域波形图 (Waveforms)")
-        st.pyplot(plot_signal(st.session_state.raw_signal, "1. 原始信号 (Raw Signal)", color='gray', fs=fs))
+        st.pyplot(plot_signal(st.session_state.raw_signal, "1. Raw Signal", color='gray', fs=fs))
         
         if st.session_state.wpt_signal is not None:
-            st.pyplot(plot_signal(st.session_state.wpt_signal, "2. WPT 降噪 (Denoised)", color='green', fs=fs))
+            st.pyplot(plot_signal(st.session_state.wpt_signal, "2. Denoised Signal (WPT)", color='green', fs=fs))
             
         if st.session_state.final_signal is not None:
-            st.pyplot(plot_signal(st.session_state.final_signal, "3. AMCKD 冲击增强 (Enhanced)", color='blue', fs=fs))
+            st.pyplot(plot_signal(st.session_state.final_signal, "3. Enhanced Signal (AMCKD)", color='blue', fs=fs))
 
     with col2:
-        st.subheader("包络谱特征 (Envelope Spectrums)")
-        st.pyplot(plot_spectrum(st.session_state.raw_signal, "1. 原始包络谱", color='#FF9999', fs=fs))
+        st.subheader("包络谱分析 (Envelope Spectrum)")
+        st.pyplot(plot_spectrum(st.session_state.raw_signal, "1. Raw Spectrum", color='#FF9999', fs=fs))
         
         if st.session_state.wpt_signal is not None:
-            st.pyplot(plot_spectrum(st.session_state.wpt_signal, "2. WPT 包络谱", color='#FF6666', fs=fs))
+            st.pyplot(plot_spectrum(st.session_state.wpt_signal, "2. Denoised Spectrum", color='#FF6666', fs=fs))
             
         if st.session_state.final_signal is not None:
-            st.pyplot(plot_spectrum(st.session_state.final_signal, "3. 最终分析诊断图 (AMCKD)", color='#CC0000', fs=fs))
+            st.pyplot(plot_spectrum(st.session_state.final_signal, "3. Diagnostic Spectrum (Final)", color='#CC0000', fs=fs))
